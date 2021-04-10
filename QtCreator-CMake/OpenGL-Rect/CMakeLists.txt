@@ -38,6 +38,9 @@ else()
     main.cpp
     myopenglwidget.cpp
     myopenglwidget.h
+
+    RectOpenGLWidget.cpp
+    RectOpenGLWidget.h
   )
 endif()
 
