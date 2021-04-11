@@ -63,18 +63,18 @@ void MyOpenGLWidget::paintGL()
     //     0.8f, 0.8f
     // };
     GLfloat vertices[] = {
-        -1.0f, 1.0f,
-        -1.0f, -1.0f,
-        1.0f, -1.0f,
-        1.0f, 1.0f
+        -0.5f, 0.5f, 0.0f,
+        -0.5f, -0.5f, 0.0f,
+        0.5f, -0.5f, 0.0f,
+        0.5f, 0.5f , 0.0f
     };
  
     vbo.create();
     vbo.bind();
-    vbo.allocate(vertices, 20*sizeof(GLfloat));
+    vbo.allocate(vertices, 24*sizeof(GLfloat));
  
     GLuint vPosition = program->attributeLocation("vPosition");
-    program->setAttributeBuffer(vPosition, GL_FLOAT, 0, 2, 0);
+    program->setAttributeBuffer(vPosition, GL_FLOAT, 0, 3, 3 * sizeof(GLfloat));
     glEnableVertexAttribArray(vPosition);
  
  
@@ -85,9 +85,12 @@ void MyOpenGLWidget::paintGL()
         0.0f, 0.0f, 1.0f,//右下
         1.0f, 1.0f, 1.0f//右上
     };
-    vbo.write(8*sizeof(GLfloat), colors, 12*sizeof(GLfloat));
+    vbo.write(12*sizeof(GLfloat), colors, 12*sizeof(GLfloat));
     GLuint vColor = program->attributeLocation("vColor");
-    program->setAttributeBuffer(vColor, GL_FLOAT, 8*sizeof(GLfloat), 3, 0);
+    program->setAttributeBuffer(vColor, GL_FLOAT, 12*sizeof(GLfloat), 3, 3 * sizeof(GLfloat));
+    //offset:第一个数据的偏移量
+    //tupleSize:一个数据有多少个元素,比如位置为xyz,颜色为rgb,所以是3
+    //stride:步长,下个数据距离当前数据的之间距离,比如右下位置和左下位置之间间隔了:3个xyz值+3个rgb值,所以填入 6 * sizeof(float)
     glEnableVertexAttribArray(vColor);
  
     // 绘制

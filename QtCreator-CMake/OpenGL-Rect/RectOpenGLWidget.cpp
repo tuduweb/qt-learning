@@ -54,7 +54,8 @@ void RectOpenGLWidget::paintGL()
     //glViewport(w, h, side, side);
  
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
- 
+    glClearColor(0.0f, 0.2f, 0.2f, 1.0f);
+
     // 顶点位置
     // GLfloat vertices[] = {
     //     -1.0f, 1.0f,
@@ -63,10 +64,10 @@ void RectOpenGLWidget::paintGL()
     //     0.8f, 0.8f
     // };
     GLfloat vertices[] = {
-        -1.0f, 1.0f,
-        -1.0f, -1.0f,
-        1.0f, -1.0f,
-        1.0f, 1.0f
+        -0.5f, 0.5f,
+        -0.5f, -0.5f,
+        0.5f, -0.5f,
+        0.5f, 0.5f
     };
  
     vbo.create();
@@ -74,20 +75,20 @@ void RectOpenGLWidget::paintGL()
     vbo.allocate(vertices, 16*sizeof(GLfloat));
  
     GLuint vPosition = program->attributeLocation("vPosition");
-    program->setAttributeBuffer(vPosition, GL_FLOAT, 0, 2, 0);
+    program->setAttributeBuffer(vPosition, GL_FLOAT, 0, 2, 2*sizeof(GLfloat));
     glEnableVertexAttribArray(vPosition);
  
  
     // 顶点颜色
     GLfloat colors[] = {
-        0.0f,0.0f,
-        0.0f,0.0f,
+        1.0f,0.0f,//左上
+        1.0f,0.0f,//左下
         1.0f,1.0f,
-        1.0f,1.0f
+        1.0f,0.0f//右上
     };
     vbo.write(8*sizeof(GLfloat), colors, 8*sizeof(GLfloat));
     GLuint vColor = program->attributeLocation("vColor");
-    program->setAttributeBuffer(vColor, GL_FLOAT, 8*sizeof(GLfloat), 3, 0);
+    program->setAttributeBuffer(vColor, GL_FLOAT, 8*sizeof(GLfloat), 2, 2*sizeof(GLfloat));
     glEnableVertexAttribArray(vColor);
  
     // 绘制
