@@ -1,5 +1,5 @@
-#ifndef YUVRENDER_H
-#define YUVRENDER_H
+#ifndef RGBRender_H
+#define RGBRender_H
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLBuffer>
@@ -14,7 +14,7 @@ public:
 
 private:
     QOpenGLShaderProgram program;
-	GLuint idYUYV;
+	GLuint idRGB;
     QOpenGLBuffer vbo;
 };
 
