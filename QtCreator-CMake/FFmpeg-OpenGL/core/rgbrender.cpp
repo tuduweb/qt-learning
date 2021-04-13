@@ -16,49 +16,17 @@ void YUVRender::initialize()
             textureOut = textureIn; \
         }";
 
-	/**
-	* tex r g b a
-	*	  y u y v
-	**/
-	//gl_TexCoord[0] -> textureOut
+	//需要重新确认一下归一化的方式及范围..
 	const char* fsrc =
 		"varying mediump vec4 textureOut;\n"
 		"uniform sampler2D tex;\n"
 
-		"uniform float texl_w;\n"
-		"uniform float tex_h;\n"
-		"uniform float tex_w;\n"
-
 		"void main(void)\n"
 		"{\n"
-		"   float y, u, v;"
-		"	vec3 yuv; \n"
 		"	vec3 rgb; \n"
-		"	vec2 xy = vec2(textureOut.xy);\n"
-		"	vec4 luma_chroma;"
-		"   float xcoord = floor(xy.x * tex_w);"
-		"   float ycoord = floor(xy.y * tex_h);"
-
-		"if (mod(xcoord, 2.0) == 0.0) {"
-		"   luma_chroma = texture2D(tex, xy);"
-		"   y = luma_chroma.r;"
-		"} else {"
-		"   luma_chroma = texture2D(tex, vec2(xy.x - texl_w, xy.y));"
-		"   y = luma_chroma.b;"
-		"}"
-		"u = luma_chroma.g - 0.5;"
-		"v = luma_chroma.a - 0.5;"
-
-		"   y = (255.0 / 219.0) * (y - (16.0 / 255.0));"
-		"   u = (255.0 / 224.0) * u;"
-		"   v = (255.0 / 224.0) * v;"
-
-		"	yuv.x = y; \n"
-		"	yuv.y = u; \n"
-		"	yuv.z = v; \n"
-		"	rgb = mat3( 1,       1,         1, \n"
-		"0,       -0.39465,  2.03211, \n"
-		"1.13983, -0.58060,  0) * yuv; \n"
+        "rgb.r = texture2D(tex, textureOut.st).r - 0.5; \n"
+        "rgb.g = texture2D(tex, textureOut.st).g - 0.5; \n"
+        "rgb.b = texture2D(tex, textureOut.st).b - 0.5; \n"
 		"gl_FragColor = vec4(rgb, 1); \n"
 		"}\n";
 
@@ -67,11 +35,12 @@ void YUVRender::initialize()
 	program.link();
 
 	GLfloat points[]{
+        //顶点
 		-1.0f, 1.0f,
 		 1.0f, 1.0f,
 		 1.0f, -1.0f,
 		-1.0f, -1.0f,
-
+        //纹理
 		0.0f,0.0f,
 		1.0f,0.0f,
 		1.0f,1.0f,
@@ -84,10 +53,10 @@ void YUVRender::initialize()
 
 	GLuint ids[1];
 	glGenTextures(1, ids);
-	idYUYV = ids[0];
+	idRGB = ids[0];
 }
 
-void YUVRender::render(uchar* yuy2Ptr, int w, int h)
+void YUVRender::render(uchar* rgb24Ptr, int w, int h)
 {
 	if (!nv12Ptr)return;
 
@@ -106,11 +75,11 @@ void YUVRender::render(uchar* yuy2Ptr, int w, int h)
 	program.setAttributeBuffer("textureIn", GL_FLOAT, 2 * 4 * sizeof(GLfloat), 2, 2 * sizeof(GLfloat));
 
 	/******************************************************************************************************************************/
-	//测试：激活纹理，绑定到创建的opengl纹理
+	//测试：激活第2层纹理，绑定到创建的opengl纹理
 	glActiveTexture(GL_TEXTURE0 + 0);
-	glBindTexture(GL_TEXTURE_2D, idYUYV);
+	glBindTexture(GL_TEXTURE_2D, idRGB);
 	//y0uy1v -> 行数/2 高度不变
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w >> 1, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, yuy2Ptr);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, rgb24Ptr);//GL_RGB16UI //GL_RGB8UI //GL_RGBA16UI 原始渲染
 	//    glTexImage2D(GL_TEXTURE_2D,0,GL_RG,w >> 1,h >> 1,0,GL_RG,GL_UNSIGNED_BYTE,nv12Ptr + w*h);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
